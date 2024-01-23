@@ -1,0 +1,5 @@
+[25-Nov-2023 10:06:07 UTC] PHP Fatal error:  Composer detected issues in your platform: Your Composer dependencies require a PHP version ">= 8.1.0". You are running 8.0.30. in /home/o9v0j050yl5k/public_html/vendor/composer/platform_check.php on line 24
+[27-Nov-2023 06:55:47 UTC] PHP Fatal error:  Cannot redeclare App\Http\Controllers\admin\HomeController::User() in /home/o9v0j050yl5k/public_html/app/Http/Controllers/admin/HomeController.php on line 683
+[27-Nov-2023 06:55:48 UTC] PHP Fatal error:  Cannot redeclare App\Http\Controllers\admin\HomeController::User() in /home/o9v0j050yl5k/public_html/app/Http/Controllers/admin/HomeController.php on line 683
+[27-Nov-2023 06:55:52 UTC] PHP Fatal error:  Cannot redeclare App\Http\Controllers\admin\HomeController::User() in /home/o9v0j050yl5k/public_html/app/Http/Controllers/admin/HomeController.php on line 683
+[27-Nov-2023 11:09:02 UTC] PHP Fatal error:  Cannot use Illuminate\Support\Str as Str because the name is already in use in /home/o9v0j050yl5k/public_html/app/Http/Controllers/admin/HomeController.php on line 17
