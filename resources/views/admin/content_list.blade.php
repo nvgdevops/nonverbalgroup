@@ -15,9 +15,14 @@
 
             <!-- start page title -->
             <div class="row">
-                <div class="col-12">
+                <div class="col-9">
                     <div class="page-title-box">
                         <h4 class="page-title">All Contents</h4>
+                    </div>
+                </div>
+                <div class="col-3" >
+                    <div class="page-title-box" style="display:block;text-align:right;">
+                        <a href="{{route('admin.add_content')}}" class="btn btn-primary btn-dark">Add New Content</a>
                     </div>
                 </div>
             </div>

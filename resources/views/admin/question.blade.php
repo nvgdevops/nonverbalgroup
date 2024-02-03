@@ -34,11 +34,10 @@ use App\Models\Quiz;
                                 <div class="card">
                                     <div class="card-body">
                                     @if(session()->has('success'))
-    <div class="alert alert-success">
-        {{ session()->get('success') }}
-    </div>
-    
-@endif
+                                        <div class="alert alert-success">
+                                            {{ session()->get('success') }}
+                                        </div>
+                                    @endif
 										<h4 class="mb-3 header-title mt-0">@if(isset($question_edit->id)) Edit Question @else Add New Question 
                                          @endif</h4>
                                         <form  action="{{ isset($question_edit->id) ? '/admin/question_edit/' .request()->route('quiz_id'). '/' . $question_edit->id : '/admin/question' }}"
@@ -49,16 +48,9 @@ use App\Models\Quiz;
                                         @endif
 
                                         <?php 
-                                        
-                                        $quiz_name = Quiz::where('id','=',request()->route('quiz_id'))->get()->first();
-                                         $name = $quiz_name->quiz_name;
-
-                                        
-                                        
-                                        
+                                            $quiz_name = Quiz::where('id','=',request()->route('quiz_id'))->get()->first();
+                                            $name = $quiz_name->quiz_name;
                                         ?>
-
-
 											<div class="row">
 												<div class="col-3">
 													<label class="form-label" for="">Quiz Name</label>
@@ -77,24 +69,32 @@ use App\Models\Quiz;
 												<div class="col-3">
 													<label class="form-label" for="">Question Type</label>
 													<select class="form-select" name="question_type">
-                                                    <option value="">Select Quiz Type </option>
-                                                <option value="answer" @if( old('question_type')=='answer' ||
-                                                    isset($question_edit->question_type) &&
-                                                    $question_edit->question_type == 'answer') selected @endif >Answer
-                                                </option>
-                                                <option value="ranking" @if( old('question_type')=='ranking' ||
-                                                    isset($question_edit->question_type) &&
-                                                    $question_edit->question_type == 'ranking') selected @endif>Ranking
-                                                </option>
-                                                <option value="multiple" @if( old('question_type')=='multiple' ||
-                                                    isset($question_edit->question_type) &&
-                                                    $question_edit->question_type == 'multiple') selected @endif
-                                                    >Multiple choices</option>
-
-                                            </select>
-                                            @if ($errors->has('question_type'))
-                                            <span class="text-danger">{{ $errors->first('question_type') }}</span>
-                                            @endif
+                                                        <option value="">Select Quiz Type </option>
+                                                        <option value="answer" @if( old('question_type')=='answer' ||
+                                                            isset($question_edit->question_type) &&
+                                                            $question_edit->question_type == 'answer') selected @endif >Answer
+                                                        </option>
+                                                        <option value="ranking" @if( old('question_type')=='ranking' ||
+                                                            isset($question_edit->question_type) &&
+                                                            $question_edit->question_type == 'ranking') selected @endif>Ranking
+                                                        </option>
+                                                        <option value="multiple" @if( old('question_type')=='multiple' ||
+                                                            isset($question_edit->question_type) &&
+                                                            $question_edit->question_type == 'multiple') selected @endif
+                                                            >Multiple choices</option>
+                                                    </select>
+                                                    @if ($errors->has('question_type'))
+                                                        <span class="text-danger">{{ $errors->first('question_type') }}</span>
+                                                    @endif
+												</div>
+												
+												<div class="col-3">
+													<label class="form-label" for="">Enter Question Order</label>
+													<input type="text" class="form-control validatePrice" placeholder="Enter Question Order" name="order"
+                                                    value="{{ old('order', isset($question_edit->id) ? $question_edit->order : '') }}">
+                                                    @if ($errors->has('order'))
+                                                        <span class="text-danger">{{ $errors->first('order') }}</span>
+                                                    @endif
 												</div>
 
                                             	<div class="col-12 mt-2">
@@ -106,24 +106,111 @@ use App\Models\Quiz;
                                                 <span class="text-danger">{{ $errors->first('more_information') }}</span>
                                                 @endif
 												</div>
-                                        <div class="form-group mt-2" id="radio">
-                                            <div class="d-flex">
-                                            <input type="text"  class="form-control w-auto float-lg-start" id="inputradio" value="" />
-                                            <button id="btn-radio" class='btn btn-success btn-sm'><i class="uil uil-plus"></i></button>
+												
+										<?php if(isset($question_edit->question_type) && $question_edit->question_type == 'ranking') { ?>
+                                        
+                                            <div class="form-group mt-2" id="radio" style="display:block;">
+                                                <div class="d-flex">
+                                                    <input type="text"  class="form-control w-auto float-lg-start" id="inputradio" value="" />
+                                                    <button id="btn-radio" class='btn btn-success btn-sm'><i class="uil uil-plus"></i></button>
+                                                </div>
+                                                
+                                                <?php 
+                                                
+                                                    if(isset($question_edit->answer) && $question_edit->answer != 'null') {
+                                                    
+                                                        $correct_ans = array();
+                                                    
+                                                        if(isset($question_edit->correct_answer) && $question_edit->correct_answer != '' && $question_edit->correct_answer != 'null') {
+                                                            $correct_ans = json_decode($question_edit->correct_answer, true);
+                                                        }
+                                                    
+                                                        $ans = json_decode($question_edit->answer, true);
+                                                        
+                                                        $idRadioCounter = 1;
+                                                        
+                                                        foreach($ans as $key => $value) {
+                                                ?>    
+                                                            <div class='addRow' id='addRow'> 
+                                                                <input  class='' name='correct_answer[]' id='chk_<?php echo ($key + 1); ?>' type='radio' <?php if(in_array($value,$correct_ans)) { echo 'checked'; } ?> class='' value='<?php echo $value; ?>'  /> 
+                                                                <label class='' for='chk_<?php echo ($key + 1); ?>'><?php echo $value; ?></label> 
+                                                                <input name='answer[]' type='hidden' value='<?php echo $value; ?>' />
+                                                                <a href='#' id='addR' class><em class='uil uil-trash-alt'></em></a>
+                                                            </div>
+                                                <?php
+                                                
+                                                            $idRadioCounter++;
+                                                        }
+                                                    }
+                                                ?>
+                                                
                                             </div>
-
-                                        </div>
+                                        
+                                        <?php } else { ?>
+                                        
+                                            <div class="form-group mt-2" id="radio">
+                                                <div class="d-flex">
+                                                    <input type="text"  class="form-control w-auto float-lg-start" id="inputradio" value="" />
+                                                    <button id="btn-radio" class='btn btn-success btn-sm'><i class="uil uil-plus"></i></button>
+                                                </div>
+                                            </div>
+                                        
+                                        <?php } ?>		
+										
 
 
 
                                         <!-- CheckBox -->
 
-                                        <div class="form-group mt-2" id="checkbox">
-                                            <div class="d-flex">
-                                            <input type="text" class="form-control w-auto float-lg-start" id="txtAdd" value="" />
-                                            <button id="btn1" class='btn btn-success btn-sm'><i class="uil uil-plus"></i></button>
+                                        <?php if(isset($question_edit->question_type) && $question_edit->question_type == 'multiple') { ?>
+                                        
+                                            <div class="form-group mt-2" id="checkbox" style="display:block;" >
+                                                <div class="d-flex">
+                                                    <input type="text" class="form-control w-auto float-lg-start" id="txtAdd" value="" />
+                                                    <button id="btn1" class='btn btn-success btn-sm'><i class="uil uil-plus"></i></button>
+                                                </div>
+                                                
+                                                <?php 
+                                                
+                                                    if(isset($question_edit->answer) && $question_edit->answer != 'null') {
+                                                    
+                                                        $correct_ans = array();
+                                                    
+                                                        if(isset($question_edit->correct_answer) && $question_edit->correct_answer != '' && $question_edit->correct_answer != 'null') {
+                                                            $correct_ans = json_decode($question_edit->correct_answer, true);
+                                                        }
+                                                    
+                                                        $ans = json_decode($question_edit->answer, true);
+                                                        
+                                                        $idCheckCounter = 1;
+                                                        
+                                                        foreach($ans as $key => $value) {
+                                                ?>
+                                                            <div class='addRow' id='addRow'> 
+                                                                <input  class='' name='correct_answer[]' id='chk_<?php echo ($key + 1); ?>' type='checkbox' <?php if(in_array($value,$correct_ans)) { echo 'checked'; } ?> class='' value='<?php echo $value; ?>'  /> 
+                                                                <label class='' for='chk_<?php echo ($key + 1); ?>'><?php echo $value; ?></label> 
+                                                                <input name='answer[]' type='hidden' value='<?php echo $value; ?>' />
+                                                                <a href='#' id='addR' class><em class='uil uil-trash-alt'></em></a>
+                                                            </div>
+                                                <?php
+                                                
+                                                            $idCheckCounter++;
+                                                        }
+                                                    }
+                                                ?>
+                                                
                                             </div>
-                                        </div>
+                                        
+                                        <?php } else { ?>
+                                        
+                                            <div class="form-group mt-2" id="checkbox" >
+                                                <div class="d-flex">
+                                                    <input type="text" class="form-control w-auto float-lg-start" id="txtAdd" value="" />
+                                                    <button id="btn1" class='btn btn-success btn-sm'><i class="uil uil-plus"></i></button>
+                                                </div>
+                                            </div>
+                                        
+                                        <?php } ?>
                                                 
 												<div class="col-2">
 													<label class="form-label" for="">&nbsp;</label>
@@ -147,12 +234,10 @@ use App\Models\Quiz;
                                                     <th>Question</th>
 													<th width="80">Question Type</th>
 													<th width="80">Quiz Title</th>
+													<th>Order</th>
                                                     <th width="80">Action</th>
                                                 </tr>
                                             </thead>
-                                        
-                                        
-                                            
                                         </table>
                                         
                                     </div> <!-- end card body-->
@@ -187,28 +272,19 @@ $(function() {
             },
             {
                 data: 'question',
-
-
-
             },
             {
                 data: 'question_type',
-
-
-
             },
             {
                 data: 'quiz_name',
-
-
-
             },
-
+            {
+                data: 'order',
+            },
             {
                 data: 'action',
-
             },
-
         ]
     });
 
@@ -220,6 +296,9 @@ $(function() {
  
 $(document).ready(function() {
     $('select').on('change', function() {
+
+        $('.addRow').remove();
+
         if (this.value === 'ranking') {
             $('#radio').show()
             $('#textarea').hide()
@@ -243,18 +322,19 @@ $(document).ready(function() {
 <script>
 $(function() {
     // Variable to get ids for the checkboxes
-    var idCounter = 1;
+    var idCheckCounter = <?php echo isset($idCheckCounter) ? $idCheckCounter : 1; ?>;
     $("#btn1").click(function(event) {
         event.preventDefault();
         var val = $("#txtAdd").val();
+        
         if(val != ''){
-        $("#checkbox").append("<div class='' id='addRow'> <input  class='' name='correct_answer[]' id='chk_" +
-            idCounter + "' type='checkbox' class='' value='" + val + "'  /> <label class='' for='chk_" +
-            idCounter + "'>" + val + "</label> <input name='answer[]' type='hidden' value='" + val +
+        $("#checkbox").append("<div class='addRow' id='addRow'> <input  class='' name='correct_answer[]' id='chk_" +
+            idCheckCounter + "' type='checkbox' class='' value='" + val + "'  /> <label class='' for='chk_" +
+            idCheckCounter + "'>" + val + "</label> <input name='answer[]' type='hidden' value='" + val +
             "' /><a href='#' id='addR' class><em class='uil uil-trash-alt'></em></a></div> "
             );
         var val = $("#txtAdd").val('');
-        idCounter++;
+        idCheckCounter++;
         }
     });
 });
@@ -266,19 +346,17 @@ $(document).on('click', '#addR', function(event) {
   
 $(function() {
    
-    var idCounter = 1;
+    var idRadioCounter = <?php echo isset($idRadioCounter) ? $idRadioCounter : 1; ?>;
     $("#btn-radio").click(function(event) {
         event.preventDefault();
         var val = $("#inputradio").val();
-       
-
         if(val != ''){
-        $("#radio").append("<div class=''  id='addRow'><input class='' name='correct_answer[]' id='chk_" +
-            idCounter + "' type='radio' class='' value='" + val + "' /><label class='' for='chk_" + idCounter + "'>" +
+        $("#radio").append("<div class='addRow'  id='addRow'><input class='' name='correct_answer[]' id='chk_" +
+            idRadioCounter + "' type='radio' class='' value='" + val + "' /><label class='' for='chk_" + idRadioCounter + "'>" +
             val + "</label><input class='' name='answer[]' type='hidden' value='" + val +
             "' /><a id='addR' href='#' ><em class='uil uil-trash-alt'></em></a></div>");
-        var val = $("#inputradio").val('');
-        idCounter++;
+            var val = $("#inputradio").val('');
+            idRadioCounter++;
         }
     });
 });

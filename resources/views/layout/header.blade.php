@@ -158,6 +158,13 @@ body[data-topbar-color=light] .logo-box{background:#000;}
                 </li>
                 
                 <li>
+                    <a href="{{route('admin.content_list')}}">
+                        <i data-feather="list"></i>
+                        <span> Content </span>
+                    </a>
+                </li>
+                
+                <li>
                     <a href="{{route('admin.course')}}">
                         <i data-feather="grid"></i>
                         <span> Courses </span>

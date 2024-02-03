@@ -16,7 +16,7 @@ class ContentController extends Controller
     {
         if($request->ajax()){
             
-            $content = Content::select('id','name','class','template_type')->where('is_deleted','=','0')->get();
+            $content = Content::select('id','name','class','template_type')->where('is_deleted','=','0')->orderBy('id','DESC')->get();
               
             return datatables()->of($content)
             ->addIndexColumn()

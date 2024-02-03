@@ -212,6 +212,8 @@ video {
                                         )
                                         ->where('lessons.sub_lesson','=',0)
                                         ->where('lessons.part_id',$parts->id)
+                                        ->where('lessons.is_deleted','0')
+                                        ->orderBy('lessons.order','ASC')
                                         ->get();
                             ?>
                             <?php $id_l = 1 ?>
@@ -291,6 +293,8 @@ video {
                                         )
                                         ->where('lessons.sub_lesson',$q->id)
                                         ->where('lessons.part_id',$parts->id)
+                                        ->where('lessons.is_deleted','0')
+                                        ->orderBy('lessons.order','ASC')
                                         ->get();
                                     ?>
                                   <?php $s_lesson = 1 ?>

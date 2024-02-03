@@ -30,11 +30,11 @@ use App\Models\Lesson;
                                 <div class="card">
                                     <div class="card-body">
                                     @if(session()->has('success'))
-    <div class="alert alert-success">
-        {{ session()->get('success') }}
-    </div>
-    
-@endif
+                                        <div class="alert alert-success">
+                                            {{ session()->get('success') }}
+                                        </div>
+                                        
+                                    @endif
 										<h4 class="mb-3 header-title mt-0">@if(isset($lesson_edit->id)) Edit Lessons @else Add
                                         Lessons @endif</h4>
                                         <form  action="{{ isset($lesson_edit->id) ? '/admin/edit_lesson/' . $lesson_edit->id : '' }}"
@@ -57,8 +57,8 @@ use App\Models\Lesson;
 													 <select class="form-select"  name="sub_lesson">
 														<option value="0">Select Sub Lesson</option>
                                                         <?php
-                              $lesson = Lesson::where("sub_lesson",'=', 0)->get();
-                            ?>
+                                                          $lesson = Lesson::where("sub_lesson",'=', 0)->get();
+                                                        ?>
                                                     @foreach($lesson as $l )
                                                     <option value="{{ $l->id }}" @if( old('sub_lesson') == $l->id ||  isset($lesson_edit->sub_lesson)
                                                         &&
@@ -174,6 +174,15 @@ use App\Models\Lesson;
                                                    <span class="text-danger">{{ $errors->first('lesson_type') }}</span>
                                                   @endif
 												</div>
+												
+												<div class="col-3 mb-2">
+													<label class="form-label" for="">Enter Lesson Order</label>
+													<input type="text" class="form-control validatePrice" id="" placeholder="Enter Lessons Order" name="order"
+                                                        value="{{ old('order', isset($lesson_edit->id) ? $lesson_edit->order : '') }}" required>
+                                                        @if ($errors->has('order'))
+                                                    <span class="text-danger">{{ $errors->first('order') }}</span>
+                                                    @endif
+												</div>
 									 
 										        <div class="col-12 inputbox mb-2" id="" style="<?php if(isset($lesson_edit->lesson_type) && $lesson_edit->lesson_type == 'training'){ echo "display:block"; } ?>">
 									            	<label class="form-label" for="">Structured Transcript</label>
@@ -250,7 +259,15 @@ use App\Models\Lesson;
                             <div class="col-12">
                                 <div class="card">
                                     <div class="card-body">
-										<h4 class="mb-3 header-title mt-0">All Lessons</h4>
+                                        <div class="row">
+    										<div class="col-6">
+                                                <h4 class="mb-3 header-title mt-0">All Lessons</h4>
+                                            </div>
+                                            <div class="col-6" style="text-align:right;">
+                                                <a href="{{route('admin.export_lesson')}}" class="btn btn-primary btn-dark mb-3">Export CSV</a>
+                                                <button type="button" data-bs-toggle="modal" data-bs-target="#exampleModal" class="btn btn-primary btn-dark mb-3">Import CSV</button>
+                                            </div>
+                                        </div>
                                         <table id="tables" class="table table-striped dt-responsive nowrap w-100">
                                             <thead>
                                                 <tr>
@@ -260,9 +277,7 @@ use App\Models\Lesson;
                                                     <th>Phase</th>
                                                     <th>Part</th> 
 													<th>Video ID/Quiz</td>
-													
-													
-													
+													<th>Order</th> 
                                                     <th width="80">Action</th>
                                                 </tr>
                                             </thead>
@@ -281,9 +296,31 @@ use App\Models\Lesson;
 
                 </div> <!-- content -->
 
-
-
-
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Import</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form method="post" action="{{ route('admin.import_lesson') }}" enctype="multipart/form-data">
+                @csrf
+                    <div class="row">
+                        <div class="col-12 form-group mb-3">
+                            <label class="form-label">Upload Lesson CSV File</label>
+                            <input type="file" required accept=".csv" class="form-control" name="import_file" />
+                        </div>
+                        <div class="col-12 mb-3" style="text-align:right;">
+                            <button type="submit" class="btn btn-primary btn-dark">Import</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 
 @endsection
 @section('dash-footer')
@@ -316,36 +353,27 @@ $(function() {
                 searchable: false
             },
             {
-                data: 'lesson_name',
-
+                data: 'lesson_name'
             },
             {
-                data: 'lesson_type',
-
+                data: 'lesson_type'
             },
             {
-                data: 'name',
-
+                data: 'name'
             },
             {
-                data: 'pname',
-
+                data: 'pname'
             }, 
             {
                 data: 'quiz_name',
-                defaultContent: '',
-
+                defaultContent: ''
             },
-            
-
-
             {
-                data: 'action',
-
-
+                data: 'order'
             },
-
-
+            {
+                data: 'action'
+            }
         ]
     });
 

@@ -14,5 +14,6 @@ class Answer extends Model
         'user_id',
         'quiz_id',
         'question_id',
-        'answer'];
+        'answer',
+        'sheet_cell_no'];
 }

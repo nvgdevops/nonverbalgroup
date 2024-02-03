@@ -13,5 +13,6 @@ class AnswerParent extends Model
         'user_id',
         'lesson_id',
         'quiz_id',
-        'is_complete'];
+        'is_complete',
+        'sheet_row'];
 }

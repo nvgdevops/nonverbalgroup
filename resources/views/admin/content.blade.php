@@ -115,7 +115,10 @@
                                 <div class="row template" id="container" style="display:<?php if(isset($edit_content->template_type) && $edit_content->template_type == 'container') { echo 'block'; } else { echo 'none'; } ?>;" >
                                     <div class="col-12">
                                         <input type="hidden" name="container_title[]" value="note-codable">
-                                        <textarea id="" style="width:100%;" name="container_detail['note-codable']"><?php if(isset($content_data['note-codable'])) { echo $content_data['note-codable']; } ?></textarea>
+                                        <input type="hidden" name="container_detail['note-codable']" id="container_content" value="<?php if(isset($content_data['note-codable'])) { echo $content_data['note-codable']; } ?>" />
+                                        <div id="snow-editor-3">
+                                            <?php if(isset($content_data['note-codable'])) { echo $content_data['note-codable']; } ?>
+                                        </div> 
                                     </div>
                                 </div>
                                 
@@ -138,7 +141,45 @@
                                     </div>
                                     <div class="col-12">
                                         <input type="hidden" name="video_title[]" value="note-codable">
-                                        <textarea id="" style="width:100%;" name="video_detail['note-codable']"><?php if(isset($content_data['note-codable'])) { echo $content_data['note-codable']; } ?></textarea>
+                                        <input type="hidden" name="video_detail['note-codable']" id="video_content" value="<?php if(isset($content_data['note-codable'])) { echo $content_data['note-codable']; } ?>" />
+                                        <div id="snow-editor-4">
+                                            <?php if(isset($content_data['note-codable'])) { echo $content_data['note-codable']; } ?>
+                                        </div> 
+                                    </div>
+                                </div>
+                                
+                                <div class="row template" id="practice" style="display:<?php if(isset($edit_content->template_type) && $edit_content->template_type == 'practice') { echo 'block'; } else { echo 'none'; } ?>;" >
+                                    <div class="col-12">
+                                        <label class="form-label" for="">Select Practice Theme</label>
+                                        <input type="hidden" name="practice_title[]" value="practice_theme">
+                                    </div>
+                                    <div class="col-12">
+                                        <input type="radio" style="height:15px;width:15px;" value="Popup Question Practice Template" <?php if(isset($content_data['practice_theme']) && $content_data['practice_theme'] == 'Popup Question Practice Template') { echo 'checked'; } ?> name="practice_detail['practice_theme']" />
+                                        <label style="margin-top:10px;margin-left:5px;" class="form-label" for="">Popup Question Practice Template</label>
+                                    </div>
+                                    <div class="col-12 mb-3">
+                                        <input type="radio" style="height:15px;width:15px;" value="Embedded Question Practice Template" <?php if(isset($content_data['practice_theme']) && $content_data['practice_theme'] == 'Embedded Question Practice Template') { echo 'checked'; } ?> name="practice_detail['practice_theme']" />
+                                        <label style="margin-top:5px;margin-left:5px;" class="form-label" for="">Embedded Question Practice Template</label>
+                                    </div>
+                                    
+                                    <div class="col-12 mb-3">
+                                        <label class="form-label" for="">Wistia ID</label>
+                                        <input type="hidden" name="practice_title[]" value="wistia_id">
+                                        <input type="text" class="form-control" value="<?php if(isset($content_data['wistia_id'])) { echo $content_data['wistia_id']; } ?>" placeholder="Enter Wistia ID"
+                                            name="practice_detail['wistia_id']" />
+                                    </div>
+                                    <div class="col-12 mb-3">
+                                        <label class="form-label" for="">Content Length</label>
+                                        <input type="hidden" name="practice_title[]" value="content_length">
+                                        <input type="text" class="form-control" value="<?php if(isset($content_data['content_length'])) { echo $content_data['content_length']; } ?>" placeholder="Enter Content Length"
+                                            name="practice_detail['content_length']" />
+                                    </div>
+                                    <div class="col-12">
+                                        <input type="hidden" name="practice_title[]" value="note-codable">
+                                        <input type="hidden" name="practice_detail['note-codable']" id="practice_content" value="<?php if(isset($content_data['note-codable'])) { echo $content_data['note-codable']; } ?>" />
+                                        <div id="snow-editor-5">
+                                            <?php if(isset($content_data['note-codable'])) { echo $content_data['note-codable']; } ?>
+                                        </div> 
                                     </div>
                                 </div>
                                 
@@ -163,15 +204,20 @@
                                             name="pdf_detail['pdf_page']" />
                                     </div>
                                     <div class="col-12 mb-3">
-                                        <label style="margin-top:10px;" class="form-label" for="">Description Of PDF</label>
-                                        <input type="hidden" name="pdf_title[]" value="pdf_description">
-                                        <textarea id="" style="width:100%;" placeholder="Please type the description." name="pdf_detail['pdf_description']"></textarea>
-                                    </div>
-                                    <div class="col-12">
                                         <label class="form-label" for="">Link Of PDF</label>
                                         <input type="hidden" name="pdf_title[]" value="pdf_link">
                                         <input type="text" class="form-control" id="" placeholder="Enter Link Of PDF"
                                             name="pdf_detail['pdf_link']" />
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label" for="">Description Of PDF</label>
+                                    </div>
+                                    <div class="col-12">
+                                        <input type="hidden" name="pdf_title[]" value="pdf_description">
+                                        <input type="hidden" name="pdf_detail['pdf_description']" id="pdf_description" value="<?php if(isset($content_data['pdf_description'])) { echo $content_data['pdf_description']; } ?>" />
+                                        <div id="snow-editor-6">
+                                            <?php if(isset($content_data['pdf_description'])) { echo $content_data['pdf_description']; } ?>
+                                        </div> 
                                     </div>
                                 </div>
                                 
@@ -195,6 +241,15 @@
     </div> <!-- content -->
 
     @endsection
+    @section('dash-footer')
+
+        <link href="<?php echo URL("/") ?>/assets/libs/quill/quill.snow.css" rel="stylesheet" type="text/css" />
+        <script src="<?php echo URL("/") ?>/assets/libs/quill/quill.min.js"></script>
+        <!-- Init js -->
+        <script src="<?php echo URL("/") ?>/assets/js/pages/form-editor.init.js"></script>  
+
+    @endsection
+    
     @section('auth-footer')
     <script>
     

@@ -1,5 +1,5 @@
 <?php
-  
+
 namespace App\Http\Controllers;
   
 use App\Http\Controllers\Controller;
@@ -20,6 +20,8 @@ use Hash;
 use Illuminate\Support\Str;
 use Mail; 
 use DB;
+use Revolution\Google\Sheets\Facades\Sheets;
+
 class AuthController extends Controller
 {
 
@@ -48,15 +50,15 @@ class AuthController extends Controller
     {
         $request->validate([
             'email' => 'required',
-            
         ]); 
-         if($user_id = User::where('email','=',$request->email )->get('id')->first()){
+        if($user_id = User::where('email','=',$request->email)->where('is_deleted','0')->get('id')->first())
+        {
             $token = Str::random(64);
             UserVerify::create([
               'user_id' => $user_id->id, 
               'token' => $token
             ]);
-      
+            
             $subject = "Email Verification";
             $message =  view('emails.emailVerificationEmail',compact('token'))->render();
             /* $headers = "MIME-Version: 1.0" . "\r\n";
@@ -105,11 +107,10 @@ class AuthController extends Controller
             }
             curl_close($ch); 
             return redirect("check-your-inbox");
-            }
-            else{
-               return redirect('login')->with('error','Email address is incorrect');
-            }    
-        
+        }
+        else{
+           return redirect('login')->with('error','Email address is incorrect');
+        }    
     }
 
     public function postRegistration(Request $request)
@@ -117,9 +118,13 @@ class AuthController extends Controller
 
         $request->validate([
             'name' => 'required',
-            'email' => 'required|email|unique:users',
-           
+            'email' => 'required|email'
         ]);
+        
+        if(User::where('email','=',$request->email)->where('is_deleted','0')->first()) {
+            
+            return redirect("login")->with('error','Email already registered.');
+        }
            
         $data = $request->all();
         $createUser = $this->create($data); 
@@ -205,11 +210,13 @@ class AuthController extends Controller
                     ->leftjoin('releases', 'phases.id', '=', 'releases.action_id')
                     ->where('releases.type','phase')
                     ->where('releases.membership_id',$membership_id)
+                    ->where('phases.is_deleted','0')
                     ->where(function ($ph) {
                             $ph->where('releases.release_date','<=',date('Y-m-d H:i:s'))
                                 ->orWhereNull('releases.release_date');
                         }
                     )
+                    ->orderBy('phases.order','ASC')
                     ->get()->first();
                     
                 if($ph) {
@@ -217,7 +224,7 @@ class AuthController extends Controller
                 }
             }
         
-             $phase_id = Phase::where('slug', $slug)->get('id')->first();
+             $phase_id = Phase::where('slug', $slug)->where('is_deleted','0')->get('id')->first();
              $id = isset($phase_id->id) ? $phase_id->id : 0;
     
             // $lesson = Lesson::where('phase_id',$id)->get();
@@ -227,11 +234,13 @@ class AuthController extends Controller
                     ->leftjoin('releases', 'lessons.id', '=', 'releases.action_id')
                     ->where('releases.type','lesson')
                     ->where('releases.membership_id',$membership_id)
+                    ->where('lessons.is_deleted','0')
                     ->where(function ($lesson) {
                             $lesson->where('releases.release_date','<=',date('Y-m-d H:i:s'))
                                 ->orWhereNull('releases.release_date');
                         }
                     )
+                    ->orderBy('lessons.order','ASC')
                     ->get();
     
             $phase_name = Phase::where('id',$id)->get();
@@ -240,23 +249,27 @@ class AuthController extends Controller
                     ->leftjoin('releases', 'phases.id', '=', 'releases.action_id')
                     ->where('releases.type','phase')
                     ->where('releases.membership_id',$membership_id)
+                    ->where('phases.is_deleted','0')
                     ->where(function ($phase) {
                             $phase->where('releases.release_date','<=',date('Y-m-d H:i:s'))
                                 ->orWhereNull('releases.release_date');
                         }
                     )
+                    ->orderBy('phases.order','ASC')
                     ->get();
                     
             $part = Part::select('parts.*')
                     ->leftjoin('releases', 'parts.id', '=', 'releases.action_id')
                     ->where('releases.type','part')
                     ->where('releases.membership_id',$membership_id)
+                    ->where('parts.is_deleted','0')
                     ->where(function ($part) {
                             $part->where('releases.release_date','<=',date('Y-m-d H:i:s'))
                                 ->orWhereNull('releases.release_date');
                         }
                     )
                     ->where('parts.phase_id',$id)
+                    ->orderBy('parts.order','ASC')
                     ->get();
             
             //$part = Part::where('phase_id',$id)->get();
@@ -270,11 +283,11 @@ class AuthController extends Controller
     public function Deatil_quizes($slug)
     {
         $userId = Auth::id();
-        $lesson = Lesson::select('lessons.*','phases.slug as phase_slug')->leftjoin('phases', 'lessons.phase_id', '=', 'phases.id')->where('lessons.slug', $slug)->get()->first();
+        $lesson = Lesson::select('lessons.*','phases.slug as phase_slug')->leftjoin('phases', 'lessons.phase_id', '=', 'phases.id')->where('lessons.slug', $slug)->where('lessons.is_deleted','0')->get()->first();
         $quiz_id = $lesson->quiz_id;
         $lesson_id = $lesson->id;
         
-        $question = Question::where('quiz_id',$quiz_id)->get();
+        $question = Question::where('quiz_id',$quiz_id)->where('is_deleted','0')->orderBy('order','ASC')->get();
         $answerParent = AnswerParent::where('lesson_id',$lesson_id)->where('quiz_id',$quiz_id)->where('user_id',$userId)->first();
        
         if($answerParent) {
@@ -288,7 +301,7 @@ class AuthController extends Controller
             $answers = 0;
         }
         $next_slug ='';
-        $next = Lesson::where('sub_lesson',$lesson->sub_lesson)->where('part_id', $lesson->part_id)->where('phase_id',$lesson->phase_id)->where('lesson_type','assessment')->where('id','>',$lesson->id)->orderBy('id','ASC')->get()->first();
+        $next = Lesson::where('sub_lesson',$lesson->sub_lesson)->where('part_id', $lesson->part_id)->where('phase_id',$lesson->phase_id)->where('lesson_type','assessment')->where('order','>',$lesson->order)->where('is_deleted','0')->orderBy('order','ASC')->get()->first();
         
         if($next) {
             $next_slug = $next->slug;
@@ -298,18 +311,18 @@ class AuthController extends Controller
 
     public function Deatil_nested_conten($slug)
     {
-        $lesson = Lesson::select('lessons.*','phases.slug as phase_slug')->leftjoin('phases', 'lessons.phase_id', '=', 'phases.id')->where('lessons.slug', $slug)->get()->first();
+        $lesson = Lesson::select('lessons.*','phases.slug as phase_slug')->leftjoin('phases', 'lessons.phase_id', '=', 'phases.id')->where('lessons.slug', $slug)->where('lessons.is_deleted','0')->get()->first();
         
         $prev_slug = '';
         $next_slug = '';
         
-        $prev = Lesson::where('sub_lesson',$lesson->sub_lesson)->where('part_id', $lesson->part_id)->where('phase_id',$lesson->phase_id)->where('lesson_type','training')->where('id','<',$lesson->id)->orderBy('id','DESC')->get()->first();
+        $prev = Lesson::where('sub_lesson',$lesson->sub_lesson)->where('part_id', $lesson->part_id)->where('phase_id',$lesson->phase_id)->where('lesson_type','training')->where('order','<',$lesson->order)->where('is_deleted','0')->orderBy('order','DESC')->get()->first();
         
         if($prev) {
             $prev_slug = $prev->slug;
         }
         
-        $next = Lesson::where('sub_lesson',$lesson->sub_lesson)->where('part_id', $lesson->part_id)->where('phase_id',$lesson->phase_id)->where('lesson_type','training')->where('id','>',$lesson->id)->orderBy('id','ASC')->get()->first();
+        $next = Lesson::where('sub_lesson',$lesson->sub_lesson)->where('part_id', $lesson->part_id)->where('phase_id',$lesson->phase_id)->where('lesson_type','training')->where('order','>',$lesson->order)->where('is_deleted','0')->orderBy('order','ASC')->get()->first();
         
         if($next) {
             $next_slug = $next->slug;
@@ -325,34 +338,88 @@ class AuthController extends Controller
         $lesson_id = $request->lesson_id;
         $quiz_id = $request->quiz_id;
         $parent_id = 0;
+        $sheet_row = '';
+    
+        $quiz = Quiz::where('id', $quiz_id)->get()->first();
     
         $answerParent = AnswerParent::where('lesson_id',$lesson_id)->where('quiz_id',$quiz_id)->where('user_id',$userId)->first();
     
         if($answerParent) {
     
             $parent_id = $answerParent->id;
+            $sheet_row = $answerParent->sheet_row;
     
         } else {
             
             $parent['user_id'] = $userId;
             $parent['lesson_id'] = $lesson_id;
             $parent['quiz_id'] = $quiz_id;
+            $parent['sheet_row'] = 0;
+            
+            $d = Sheets::spreadsheet(config('google.spreadsheets_id_quiz'))->sheetList();
+        
+            $sheet_name = isset($d[$quiz->sheet_id]) ? $d[$quiz->sheet_id] : '';
+            
+            if($sheet_name != '') {
+                
+                $date = date('m/d/Y');
+                $user = User::where('id', $userId)->get()->first();
+                
+                $sheet_data = [
+                    [$date, $user->email, $userId]
+                ];
+                $sheet_values = Sheets::spreadsheet(config('google.spreadsheets_id_quiz'))->sheet($sheet_name)->append($sheet_data);
+                
+                $str = $sheet_values->updates->updatedRange;
+        
+                $arr = explode(":C", $str);
+                
+                $parent['sheet_row'] = end($arr);
+            }
             
             $ansParent = AnswerParent::create($parent);
             $parent_id = $ansParent->id;
+            $sheet_row = $ansParent->sheet_row;
         }
         
         $input['parent_id'] = $parent_id;
         $input['user_id'] = $userId;
         $input['quiz_id'] = $quiz_id;
         $input['question_id'] = $request->question_id;
+        $input['sheet_cell_no'] = '';
+        
+        $sheet_answer = '';
         
         if($request->question_type == 'multiple') {
+            
+            $sheet_answer = implode(",",$request->answer);
             
             $input['answer'] = json_encode($request->answer);
             
         } else {
+            
+            $sheet_answer = $request->answer; 
+            
             $input['answer'] = $request->answer;   
+        }
+    
+        $question = Question::select('sheet_column')->where('id',$input['question_id'])->get()->first();
+    
+        if($question->sheet_column) {
+            
+            $input['sheet_cell_no'] = $question->sheet_column.$sheet_row;
+            
+            $quiz_data = [
+                [$sheet_answer]
+            ];
+            
+            $d = Sheets::spreadsheet(config('google.spreadsheets_id_quiz'))->sheetList();
+    
+            $sheet_name = isset($d[$quiz->sheet_id]) ? $d[$quiz->sheet_id] : '';
+            
+            if($sheet_name != '') {
+                $quiz_values =   Sheets::spreadsheet(config('google.spreadsheets_id_quiz'))->range($input['sheet_cell_no'])->sheet($sheet_name)->update($quiz_data);
+            }
         }
     
         $admin = Answer::create($input);

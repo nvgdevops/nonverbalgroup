@@ -32,7 +32,11 @@
                             <div class="alert alert-success">
                                 {{ session()->get('success') }}
                             </div>
-                            
+                        @endif
+                        @if(session()->has('error'))
+                            <div class="alert alert-danger">
+                                {{ session()->get('error') }}
+                            </div>
                         @endif
                             
                             <form action="{{ isset($user->id) ? '/admin/edit_user/' . $user->id : '' }}"

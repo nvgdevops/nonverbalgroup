@@ -170,6 +170,9 @@ return [
         // App\Providers\BroadcastServiceProvider::class,
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
+        Maatwebsite\Excel\ExcelServiceProvider::class,
+        Revolution\Google\Sheets\Providers\GoogleServiceProvider::class,
+        Revolution\Google\Sheets\Providers\SheetsServiceProvider::class,
     ])->toArray(),
 
     /*
@@ -185,6 +188,8 @@ return [
 
     'aliases' => Facade::defaultAliases()->merge([
         // 'Example' => App\Facades\Example::class,
+        'Excel' => Maatwebsite\Excel\Facades\Excel::class,
+        'Sheets' => Revolution\Google\Sheets\Facades\Sheets::class
     ])->toArray(),
 
 ];

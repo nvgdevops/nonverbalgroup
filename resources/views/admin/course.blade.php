@@ -77,7 +77,15 @@
                 <div class="col-12">
                     <div class="card">
                         <div class="card-body">
-                            <h4 class="mb-3 header-title mt-0">All Courses</h4>
+                            <div class="row">
+                                <div class="col-6">
+                                    <h4 class="mb-3 header-title mt-0">All Courses</h4>
+                                </div>
+                                <div class="col-6" style="text-align:right;">
+                                    <a href="{{route('admin.export_course')}}" class="btn btn-primary btn-dark mb-3">Export CSV</a>
+                                    <button type="button" data-bs-toggle="modal" data-bs-target="#exampleModal" class="btn btn-primary btn-dark mb-3">Import CSV</button>
+                                </div>
+                            </div>  
                             <table id="tables" class="table table-striped dt-responsive nowrap w-100">
                                 <thead>
                                     <tr>
@@ -100,6 +108,33 @@
         </div> <!-- container -->
 
     </div> <!-- content -->
+
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Import</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form method="post" action="{{ route('admin.import_course') }}" enctype="multipart/form-data">
+            @csrf
+            
+            <div class="row">
+                <div class="col-12 form-group mb-3">
+                    <label class="form-label">Upload Course CSV File</label>
+                    <input type="file" required accept=".csv" class="form-control" name="import_file" />
+                </div>
+                <div class="col-12 mb-3" style="text-align:right;">
+                    <button type="submit" class="btn btn-primary btn-dark">Import</button>
+                </div>
+            </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
 
     @endsection
     @section('auth-footer')

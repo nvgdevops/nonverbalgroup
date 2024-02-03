@@ -53,7 +53,7 @@ use App\Models\Lesson;
                                 <table id="tables" class="table table-striped dt-responsive nowrap w-100">
                                     <tbody>
                                     <?php
-                                        $lesson = Lesson::where("sub_lesson","=",0)->where('part_id',$parts->id)->get();
+                                        $lesson = Lesson::where("sub_lesson","=",0)->where('part_id',$parts->id)->where('is_deleted','0')->orderBy('order','ASC')->get();
                                         $id_l = 1;
                                     ?>
                                         @foreach($lesson as $q)
@@ -65,7 +65,7 @@ use App\Models\Lesson;
                                             </tr>    
                                             
                                             <?php
-                                                $lessons = Lesson::where("sub_lesson",$q->id)->where('part_id',$parts->id)->get();
+                                                $lessons = Lesson::where("sub_lesson",$q->id)->where('part_id',$parts->id)->where('is_deleted','0')->orderBy('order','ASC')->get();
                                                 $s_lesson = 1
                                             ?>
                                                 @foreach($lessons as $l)
